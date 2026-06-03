@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HeartSense | Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body class="dashboard-body">
+    <main class="dashboard-layout">
+        {% include "partials/dashboard_sidebar.html" %}
+
+        <section class="dashboard-main">
+            {% set dashboard = true %}
+            {% include "partials/flash_messages.html" %}
+            <div class="dashboard-topbar">
+                <div>
+                    <h1>Welcome back, {{ highlighted_name }}!</h1>
+                    <p>Here is your heart prediction overview.</p>
+                </div>
+                <span class="date-pill">{{ today_label }}</span>
+            </div>
+
+            <section class="summary-grid">
+                <article class="summary-card accent-blue">
+                    <span>Total Predictions</span>
+                    <strong>{{ stats.total_predictions }}</strong>
+                </article>
+                <article class="summary-card accent-green">
+                    <span>Low Risk</span>
+                    <strong>{{ stats.low_risk }}</strong>
+                </article>
+                <article class="summary-card accent-amber">
+                    <span>Moderate Risk</span>
+                    <strong>{{ stats.moderate_risk }}</strong>
+                </article>
+                <article class="summary-card accent-red">
+                    <span>High Risk</span>
+                    <strong>{{ stats.high_risk }}</strong>
+                </article>
+                <article class="summary-card accent-pink">
+                    <span>Very High Risk</span>
+                    <strong>{{ stats.very_high_risk }}</strong>
+                </article>
+            </section>
+
+            <section class="dashboard-grid">
+                <article class="panel-card">
+                    <h2>Risk Level Distribution</h2>
+                    <div class="distribution-list">
+                        {% for item in stats.distribution %}
+                        <div class="distribution-row">
+                            <div class="distribution-head">
+                                <span>{{ item.label }}</span>
+                                <span>{{ item.percent }}%</span>
+                            </div>
+                            <div class="distribution-bar">
+                                <span style="width: {{ item.percent }}%; background: {{ item.color }};"></span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </article>
+
+                <article class="panel-card">
+                    <h2>Predictions Over Time</h2>
+                    <div class="trend-list">
+                        {% if stats.latest_months %}
+                            {% for month, count in stats.latest_months %}
+                            <div class="trend-item">
+                                <span>{{ month }}</span>
+                                <strong>{{ count }}</strong>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <p class="empty-text">No saved predictions yet. Create the first one from New Prediction.</p>
+                        {% endif %}
+                    </div>
+                </article>
+            </section>
+
+            <section class="panel-card">
+                <div class="section-head">
+                    <h2>Recent Predictions</h2>
+                    <a href="{{ url_for('predictions') }}">View All</a>
+                </div>
+
+                {% if records %}
+                <div class="table-scroll">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Patient Name</th>
+                                <th>Risk %</th>
+                                <th>Risk Level</th>
+                                <th>Result</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for record in records %}
+                            <tr>
+                                <td>{{ record.created_label }}</td>
+                                <td><a href="{{ url_for('prediction_result', prediction_id=record.id) }}">{{ record.patient_name }}</a></td>
+                                <td>{{ record.response.probability_disease }}%</td>
+                                <td><span class="badge badge-{{ record.response.risk_level|lower|replace(' ', '-') }}">{{ record.response.risk_level }}</span></td>
+                                <td>{{ "Positive" if record.response.prediction == 1 else "Negative" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="empty-text">No patient records saved yet.</p>
+                {% endif %}
+            </section>
+        </section>
+    </main>
+</body>
+</html>

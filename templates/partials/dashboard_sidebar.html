@@ -1,0 +1,20 @@
+<aside class="dashboard-sidebar">
+    <a href="{{ url_for('home') }}" class="brand sidebar-brand">
+        <span class="brand-mark">heart</span>
+        <span>HeartSense</span>
+    </a>
+
+    <nav class="sidebar-nav">
+        <a href="{{ url_for('dashboard') }}" class="{% if active_page == 'dashboard' %}active{% endif %}">Dashboard</a>
+        <a href="{{ url_for('new_prediction') }}" class="{% if active_page == 'new_prediction' %}active{% endif %}">New Prediction</a>
+        <a href="{{ url_for('predictions') }}" class="{% if active_page == 'predictions' %}active{% endif %}">My Predictions</a>
+        <a href="{{ url_for('profile') }}" class="{% if active_page == 'profile' %}active{% endif %}">Profile & Settings</a>
+        <a href="{{ url_for('about') }}">About</a>
+        {% if current_user %}
+        <a href="{{ url_for('logout') }}">Logout</a>
+        {% else %}
+        <a href="{{ url_for('login') }}">Login</a>
+        <a href="{{ url_for('signup') }}">Sign Up</a>
+        {% endif %}
+    </nav>
+</aside>

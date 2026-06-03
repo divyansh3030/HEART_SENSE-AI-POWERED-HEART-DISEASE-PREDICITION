@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HeartSense | New Prediction</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body class="dashboard-body">
+    <main class="dashboard-layout">
+        {% include "partials/dashboard_sidebar.html" %}
+
+        <section class="dashboard-main">
+            {% set dashboard = true %}
+            {% include "partials/flash_messages.html" %}
+            <section class="form-panel">
+                <div class="section-head section-head-stack">
+                    <div>
+                        <h1>New Heart Disease Prediction</h1>
+                        <p>Please enter the patient details below.</p>
+                    </div>
+                </div>
+
+                {% if error %}
+                <div class="form-error">{{ error }}</div>
+                {% endif %}
+
+                <form method="post" action="{{ url_for('predict') }}">
+                    <div class="patient-field">
+                        <label for="patient_name">Patient Name</label>
+                        <input
+                            id="patient_name"
+                            name="patient_name"
+                            type="text"
+                            placeholder="Enter patient name"
+                            value="{{ form_values.get('patient_name', '') }}"
+                            required
+                        >
+                    </div>
+
+                    <div class="prediction-form-grid">
+                        {% for field in fields %}
+                        <div class="form-group">
+                            <label for="{{ field.name }}">{{ field.label }}</label>
+                            {% if field.type == "select" %}
+                            <select id="{{ field.name }}" name="{{ field.name }}" required>
+                                <option value="">Select</option>
+                                {% for value, label in select_options[field.name] %}
+                                <option value="{{ value }}" {% if form_values.get(field.name, '') == value %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                            {% else %}
+                            <input
+                                id="{{ field.name }}"
+                                name="{{ field.name }}"
+                                type="number"
+                                step="{{ field.step }}"
+                                min="{{ field.min }}"
+                                max="{{ field.max }}"
+                                placeholder="{{ field.placeholder }}"
+                                value="{{ form_values.get(field.name, '') }}"
+                                required
+                            >
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <button type="submit" class="primary-button full-width">Predict Risk</button>
+                </form>
+            </section>
+        </section>
+    </main>
+</body>
+</html>

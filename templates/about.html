@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}HeartSense | About{% endblock %}
+{% block body_class %}public-page{% endblock %}
+
+{% block content %}
+<main class="site-shell info-shell">
+    <section class="panel-card about-hero">
+        <div>
+            <span class="eyebrow">About HeartSense</span>
+            <h1>About <span>HeartSense</span></h1>
+            <p>
+                HeartSense is a heart disease prediction application powered by a
+                trained machine learning model. It accepts 13 clinical inputs and
+                estimates the probability of heart disease, then saves those
+                results to a dashboard for follow-up.
+            </p>
+        </div>
+        <div class="about-visual">
+            <div class="mini-heart">heart</div>
+            <div class="search-ring"></div>
+        </div>
+    </section>
+
+    <section class="info-grid">
+        <article class="mini-card">
+            <h2>Dataset</h2>
+            <p>UCI heart disease data with target labels and common cardiology features.</p>
+        </article>
+        <article class="mini-card">
+            <h2>Model</h2>
+            <p>Random forest pipeline by default, with a saved DNN path available in the project.</p>
+        </article>
+        <article class="mini-card">
+            <h2>Performance</h2>
+            <p>Training scripts report ROC-AUC, test accuracy and 5-fold cross validation.</p>
+        </article>
+        <article class="mini-card">
+            <h2>Features</h2>
+            <p>Age, chest pain, blood pressure, cholesterol, ECG, exercise angina and more.</p>
+        </article>
+    </section>
+</main>
+{% endblock %}

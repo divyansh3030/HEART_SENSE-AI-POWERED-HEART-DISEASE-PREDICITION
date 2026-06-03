@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}HeartSense{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body class="{% block body_class %}{% endblock %}">
+    <header class="site-header">
+        <div class="site-shell nav-shell">
+            <a href="{{ url_for('home') }}" class="brand">
+                <span class="brand-mark">heart</span>
+                <span>HeartSense</span>
+            </a>
+
+            <nav class="top-nav">
+                <a href="{{ url_for('home') }}" class="{% if request.endpoint == 'home' %}active{% endif %}">Home</a>
+                <a href="{{ url_for('about') }}" class="{% if request.endpoint == 'about' %}active{% endif %}">About</a>
+                {% if current_user %}
+                <a href="{{ url_for('dashboard') }}" class="{% if request.endpoint == 'dashboard' %}active{% endif %}">Dashboard</a>
+                <a href="{{ url_for('logout') }}">Logout</a>
+                {% else %}
+                <a href="{{ url_for('login') }}" class="{% if request.endpoint == 'login' %}active{% endif %}">Login</a>
+                <a href="{{ url_for('signup') }}" class="button-link">Sign Up</a>
+                {% endif %}
+            </nav>
+        </div>
+    </header>
+
+    <div class="site-shell">
+        {% include "partials/flash_messages.html" %}
+    </div>
+
+    {% block content %}{% endblock %}
+</body>
+</html>

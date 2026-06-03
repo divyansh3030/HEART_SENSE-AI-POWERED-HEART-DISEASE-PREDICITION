@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}HeartSense | Home{% endblock %}
+{% block body_class %}public-page{% endblock %}
+
+{% block content %}
+<main class="site-shell hero-shell">
+    <section class="hero-card">
+        <div class="hero-copy">
+            <span class="eyebrow">AI-powered heart health support</span>
+            <h1>AI-Powered <span>Heart</span> Disease Prediction</h1>
+            <p>
+                HeartSense helps users assess heart disease risk from clinical
+                parameters and now gives the project a proper dashboard flow for
+                saved patients and prediction history.
+            </p>
+
+            <div class="hero-actions">
+                <a href="{{ url_for('new_prediction') }}" class="primary-button">Start Prediction</a>
+                <a href="{{ url_for('about') }}" class="secondary-button">Learn More</a>
+            </div>
+        </div>
+
+        <div class="hero-visual">
+            <div class="pulse-orb"></div>
+            <div class="heart-illustration">heart</div>
+            <div class="pulse-line"></div>
+        </div>
+    </section>
+
+    <section class="stats-grid">
+        <article class="stat-card">
+            <span class="stat-label">Predictions Saved</span>
+            <strong>{{ stats.total_predictions }}</strong>
+            <p>Patient results stored in dashboard history.</p>
+        </article>
+        <article class="stat-card">
+            <span class="stat-label">Low Risk</span>
+            <strong>{{ stats.low_risk }}</strong>
+            <p>Cases currently marked low risk.</p>
+        </article>
+        <article class="stat-card">
+            <span class="stat-label">Moderate + High</span>
+            <strong>{{ stats.moderate_risk + stats.high_risk + stats.very_high_risk }}</strong>
+            <p>Patients who need closer follow-up.</p>
+        </article>
+        <article class="stat-card">
+            <span class="stat-label">Clinical Inputs</span>
+            <strong>13</strong>
+            <p>Age, BP, cholesterol, ECG, thal and more.</p>
+        </article>
+    </section>
+
+    <section class="feature-grid">
+        <article class="feature-card">
+            <h2>Useful For Follow-Up</h2>
+            <p>The dashboard helps track repeat patients, compare saved results, and quickly review risk trends over time.</p>
+        </article>
+        <article class="feature-card">
+            <h2>Saved Patient Results</h2>
+            <p>Each prediction now stores the patient name, date, risk percentages and risk level for later review.</p>
+        </article>
+        <article class="feature-card">
+            <h2>Prediction History</h2>
+            <p>The dashboard highlights recent records and risk distribution so the project looks more like a working clinic tool.</p>
+        </article>
+    </section>
+</main>
+{% endblock %}

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HeartSense | My Predictions</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body class="dashboard-body">
+    <main class="dashboard-layout">
+        {% include "partials/dashboard_sidebar.html" %}
+
+        <section class="dashboard-main">
+            {% set dashboard = true %}
+            {% include "partials/flash_messages.html" %}
+            <section class="panel-card">
+                <div class="section-head">
+                    <div>
+                        <h1>Saved Patient Predictions</h1>
+                        <p>Search, filter, review, and remove saved predictions from one place.</p>
+                    </div>
+                    <a href="{{ url_for('new_prediction') }}" class="button-link">New Prediction</a>
+                </div>
+
+                <form method="get" action="{{ url_for('predictions') }}" class="filter-toolbar">
+                    <label>
+                        Search Patient
+                        <input
+                            type="text"
+                            name="search"
+                            placeholder="Search by patient name"
+                            value="{{ filters.search }}"
+                        >
+                    </label>
+                    <label>
+                        Risk Level
+                        <select name="risk_level">
+                            <option value="">All risk levels</option>
+                            {% for option in risk_level_options %}
+                            <option value="{{ option }}" {% if filters.risk_level == option %}selected{% endif %}>{{ option }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                    <label>
+                        Result
+                        <select name="result">
+                            <option value="">All results</option>
+                            <option value="positive" {% if filters.result == "positive" %}selected{% endif %}>Positive</option>
+                            <option value="negative" {% if filters.result == "negative" %}selected{% endif %}>Negative</option>
+                        </select>
+                    </label>
+                    <div class="filter-actions">
+                        <button type="submit" class="primary-button">Apply Filters</button>
+                        <a href="{{ url_for('predictions') }}" class="secondary-button">Clear</a>
+                    </div>
+                </form>
+
+                {% if records %}
+                <div class="table-scroll">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Patient Name</th>
+                                <th>Disease Risk</th>
+                                <th>No Disease</th>
+                                <th>Risk Level</th>
+                                <th>Result</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for record in records %}
+                            <tr>
+                                <td>{{ record.created_label }}</td>
+                                <td><a href="{{ url_for('prediction_result', prediction_id=record.id) }}">{{ record.patient_name }}</a></td>
+                                <td>{{ record.response.probability_disease }}%</td>
+                                <td>{{ record.response.probability_no_disease }}%</td>
+                                <td><span class="badge badge-{{ record.response.risk_level|lower|replace(' ', '-') }}">{{ record.response.risk_level }}</span></td>
+                                <td>{{ "Positive" if record.response.prediction == 1 else "Negative" }}</td>
+                                <td>
+                                    <div class="table-actions">
+                                        <a href="{{ url_for('prediction_result', prediction_id=record.id) }}" class="table-link">View</a>
+                                        <form method="post" action="{{ url_for('delete_prediction', prediction_id=record.id) }}" onsubmit="return confirm('Delete this saved prediction?');">
+                                            <button type="submit" class="danger-button danger-button-small">Delete</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="empty-text">No predictions matched your current filters. Try clearing the filters or add a new prediction.</p>
+                {% endif %}
+            </section>
+        </section>
+    </main>
+</body>
+</html>

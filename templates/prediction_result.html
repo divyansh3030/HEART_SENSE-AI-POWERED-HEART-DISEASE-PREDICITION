@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HeartSense | Prediction Result</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body class="dashboard-body">
+    <main class="dashboard-layout">
+        {% include "partials/dashboard_sidebar.html" %}
+
+        <section class="dashboard-main">
+            {% set dashboard = true %}
+            {% include "partials/flash_messages.html" %}
+            <section class="result-layout">
+                <article class="panel-card">
+                    <div class="section-head section-head-stack">
+                        <div>
+                            <h1>Prediction Result</h1>
+                            <p>Prediction made on {{ record.created_label }} for {{ record.patient_name }}.</p>
+                        </div>
+                    </div>
+
+                    <div class="result-hero">
+                        <div class="score-ring" style="--score: {{ record.response.probability_disease }}%;">
+                            <div>
+                                <strong>{{ record.response.probability_disease }}%</strong>
+                                <span>Risk Percentage</span>
+                            </div>
+                        </div>
+
+                        <div class="result-copy">
+                            <p><strong>Patient:</strong> {{ record.patient_name }}</p>
+                            <p><strong>Risk Level:</strong> <span class="result-accent">{{ record.response.risk_level }}</span></p>
+                            <p><strong>Prediction:</strong> <span class="result-accent">{{ "Positive" if record.response.prediction == 1 else "Negative" }}</span></p>
+                            <p>
+                                The model indicates a
+                                {% if record.response.prediction == 1 %}higher{% else %}lower{% endif %}
+                                risk of heart disease for this patient.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="distribution-list">
+                        <div class="distribution-row">
+                            <div class="distribution-head">
+                                <span>No Disease</span>
+                                <span>{{ record.response.probability_no_disease }}%</span>
+                            </div>
+                            <div class="distribution-bar">
+                                <span class="green-bar" style="width: {{ record.response.probability_no_disease }}%;"></span>
+                            </div>
+                        </div>
+
+                        <div class="distribution-row">
+                            <div class="distribution-head">
+                                <span>Heart Disease</span>
+                                <span>{{ record.response.probability_disease }}%</span>
+                            </div>
+                            <div class="distribution-bar">
+                                <span class="red-bar" style="width: {{ record.response.probability_disease }}%;"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="hero-actions">
+                        <a href="{{ url_for('dashboard') }}" class="primary-button">Back to Dashboard</a>
+                        <a href="{{ url_for('predictions') }}" class="secondary-button">Saved Results</a>
+                        <form method="post" action="{{ url_for('delete_prediction', prediction_id=record.id) }}" onsubmit="return confirm('Delete this saved prediction?');">
+                            <button type="submit" class="danger-button">Delete Prediction</button>
+                        </form>
+                    </div>
+                </article>
+
+                <article class="panel-card">
+                    <h2>Submitted Patient Details</h2>
+                    <div class="details-grid">
+                        {% for key, value in record.input.items() %}
+                        <div class="detail-card">
+                            <span>{{ key }}</span>
+                            <strong>{{ value }}</strong>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </article>
+            </section>
+        </section>
+    </main>
+</body>
+</html>
