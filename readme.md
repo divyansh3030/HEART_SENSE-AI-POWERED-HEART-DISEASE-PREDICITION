@@ -186,9 +186,9 @@ The app expects these saved files inside [models](E:/heartsense/models):
 - `dnn_scaler.pkl`
 
 Train Models
-Random Forest
-python train_model.py
-Deep Neural Network
+
+Random Forest python train_model.py 
+and Deep Neural Network
 python train_dnn_talos.py
 
 If you need to retrain the scikit-learn pipeline:
@@ -204,16 +204,15 @@ The optional research script [train_dnn_talos.py](E:/heartsense/train_dnn_talos.
 - Prediction inputs are validated before inference and saved per logged-in user.
 - If you switch Python environments, keep `scikit-learn==1.3.2` to stay compatible with the saved pipeline model.
 
-Future Enhancements
-Email Reports
-PDF Report Generation
-Doctor Dashboard
-Multi-user Roles
+## Future Enhancements
+Email Reports, PDF Report Generation
+, Doctor Dashboard ,Multi-user Roles
 Real-time Health Monitoring
-Cloud Deployment (AWS)
+Cloud Deployment (AWS),
 Model Explainability (SHAP/LIME)
 Mobile Application
-Author
+
+## Author
 
 Divyansh Kakkar
 
