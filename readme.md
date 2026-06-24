@@ -69,7 +69,7 @@ Joblib
 Werkzeug
 Dataset
 
-The project uses the UCI Heart Disease Dataset.
+The project uses the kaggle Heart Disease Dataset.
 
 Dataset Information
 Total Records: 1025
