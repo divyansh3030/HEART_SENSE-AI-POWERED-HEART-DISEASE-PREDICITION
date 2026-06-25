@@ -1,8 +1,6 @@
 from datetime import datetime
 from functools import wraps
 import os
-from urllib.parse import urlparse
-
 from flask import (
     Flask,
     flash,
@@ -204,15 +202,7 @@ load_prediction_model()
 
 def build_postgres_config():
     if DATABASE_URL:
-        parsed = urlparse(DATABASE_URL)
-        return {
-            "dbname": parsed.path.lstrip("/"),
-            "user": parsed.username,
-            "password": parsed.password,
-            "host": parsed.hostname,
-            "port": parsed.port or 5432,
-            "sslmode": os.getenv("PGSSLMODE", "prefer"),
-        }
+        return DATABASE_URL
 
     return {
         "dbname": os.getenv("PGDATABASE", "heartsense"),
@@ -230,7 +220,11 @@ def get_db_connection():
             "PostgreSQL driver not installed. Run: pip install psycopg2-binary"
         )
 
-    return psycopg2.connect(**build_postgres_config())
+    postgres_config = build_postgres_config()
+    if isinstance(postgres_config, str):
+        return psycopg2.connect(postgres_config)
+
+    return psycopg2.connect(**postgres_config)
 
 
 def execute_query(query, params=None, fetchone=False, fetchall=False, commit=False):
@@ -239,9 +233,12 @@ def execute_query(query, params=None, fetchone=False, fetchall=False, commit=Fal
     try:
         cursor.execute(query, params or ())
         if commit:
+            inserted_id = None
+            if cursor.description:
+                inserted_row = cursor.fetchone()
+                inserted_id = inserted_row["id"] if inserted_row and "id" in inserted_row else None
             connection.commit()
-            inserted_row = cursor.fetchone()
-            return inserted_row["id"] if inserted_row else None
+            return inserted_id
         if fetchone:
             return cursor.fetchone()
         if fetchall:
