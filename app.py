@@ -43,7 +43,7 @@ MYSQL_CONFIG = {
     "host": os.getenv("MYSQL_HOST", "127.0.0.1"),
     "port": int(os.getenv("MYSQL_PORT", "3306")),
     "user": os.getenv("MYSQL_USER", "root"),
-    "password": os.getenv("MYSQL_PASSWORD", "HeartSense@123"),
+    "password": os.getenv("MYSQL_PASSWORD", ""),
     "database": os.getenv("MYSQL_DATABASE", "heartsense"),
 }
 
@@ -959,5 +959,7 @@ def delete_prediction(prediction_id):
 
 
 if __name__ == "__main__":
-    print("Flask app running on http://localhost:5000")
-    app.run(debug=True, host="0.0.0.0", port=5000)
+    debug_mode = os.getenv("FLASK_DEBUG", "false").lower() == "true"
+    port = int(os.getenv("PORT", "5000"))
+    print(f"Flask app running on http://localhost:{port}")
+    app.run(debug=debug_mode, host="0.0.0.0", port=port)

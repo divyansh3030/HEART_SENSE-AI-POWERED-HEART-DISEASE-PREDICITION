@@ -13,4 +13,5 @@ keras==2.15.0
 
 # Web
 flask==3.0.0
+gunicorn==23.0.0
 mysql-connector-python==9.3.0

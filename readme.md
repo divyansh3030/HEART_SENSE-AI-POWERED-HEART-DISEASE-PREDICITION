@@ -179,6 +179,30 @@ python app.py
 
 6. Open the app in your browser at [http://127.0.0.1:5000](http://127.0.0.1:5000).
 
+## Railway Deployment
+1. Push this repository to GitHub.
+
+2. In Railway, create a new project and deploy from the GitHub repo.
+
+3. Add a MySQL service in the same Railway project, then copy its connection values into these environment variables for the web app:
+   `MYSQL_HOST`, `MYSQL_PORT`, `MYSQL_USER`, `MYSQL_PASSWORD`, `MYSQL_DATABASE`
+
+4. Set these application environment variables in Railway:
+
+```text
+FLASK_SECRET_KEY=replace-with-a-long-random-secret
+FLASK_DEBUG=false
+```
+
+5. Railway should detect the app automatically. This repo now includes:
+- `Procfile` with `gunicorn app:app` for the production start command
+- `runtime.txt` to target Python 3.11 for TensorFlow compatibility
+- `.env.example` showing the required environment variables
+
+6. After the first successful deploy, generate a Railway public domain for the web service.
+
+7. Import the schema from [schema_mysql.sql](E:/heartsense/schema_mysql.sql) into the Railway MySQL database before using signup/login and predictions history features.
+
 ## Model Files
 The app expects these saved files inside [models](E:/heartsense/models):
 - `heartsense_pipeline.pkl`
