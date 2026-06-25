@@ -5,7 +5,7 @@ Overview
 
 HeartSense is a full-stack web application that predicts the likelihood of heart disease using Machine Learning and Deep Learning models. The system allows users to create accounts, perform heart disease risk assessments, store prediction records, and monitor patient history through an interactive dashboard.
 
-The project combines Artificial Intelligence, Flask, MySQL, and modern web technologies to provide an intelligent healthcare support system..
+The project combines Artificial Intelligence, Flask, PostgreSQL, and modern web technologies to provide an intelligent healthcare support system..
 
 Disclaimer: This project is intended for educational and research purposes only and should not be used as a substitute for professional medical diagnosis.
 
@@ -52,7 +52,7 @@ Backend
 Python
 Flask
 Database
-MySQL
+PostgreSQL
 Machine Learning
 Scikit-Learn
 Random Forest Classifier
@@ -158,17 +158,15 @@ python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
 ```
 
-3. Create the MySQL database and tables from [schema_mysql.sql](E:/heartsense/schema_mysql.sql).
+3. Create the PostgreSQL tables from [schema_postgres.sql](E:/heartsense/schema_postgres.sql).
 
 4. Optional: set custom environment variables if you do not want to use the defaults in [app.py](E:/heartsense/app.py).
 
 ```powershell
-$env:MYSQL_HOST="127.0.0.1"
-$env:MYSQL_PORT="3306"
-$env:MYSQL_USER="root"
-$env:MYSQL_PASSWORD="your-password"
-$env:MYSQL_DATABASE="heartsense"
+$env:DATABASE_URL="postgresql://postgres:your-password@127.0.0.1:5432/heartsense"
+$env:PGSSLMODE="prefer"
 $env:FLASK_SECRET_KEY="replace-this"
+$env:FLASK_DEBUG="true"
 ```
 
 5. Run the Flask app.
@@ -179,29 +177,32 @@ python app.py
 
 6. Open the app in your browser at [http://127.0.0.1:5000](http://127.0.0.1:5000).
 
-## Railway Deployment
+## Render Deployment
 1. Push this repository to GitHub.
 
-2. In Railway, create a new project and deploy from the GitHub repo.
+2. In Render, create a new `Postgres` database and a new `Web Service` from this GitHub repo.
 
-3. Add a MySQL service in the same Railway project, then copy its connection values into these environment variables for the web app:
-   `MYSQL_HOST`, `MYSQL_PORT`, `MYSQL_USER`, `MYSQL_PASSWORD`, `MYSQL_DATABASE`
+3. For the web service, use these values:
+- Build Command: `pip install -r requirements.txt`
+- Start Command: `gunicorn app:app`
 
-4. Set these application environment variables in Railway:
+4. In the Render web service environment variables, set:
 
 ```text
 FLASK_SECRET_KEY=replace-with-a-long-random-secret
 FLASK_DEBUG=false
 ```
 
-5. Railway should detect the app automatically. This repo now includes:
+5. Link the Render Postgres database connection string to the web service as `DATABASE_URL`.
+
+6. Render should detect the app automatically. This repo now includes:
 - `Procfile` with `gunicorn app:app` for the production start command
 - `runtime.txt` to target Python 3.11 for TensorFlow compatibility
 - `.env.example` showing the required environment variables
 
-6. After the first successful deploy, generate a Railway public domain for the web service.
+7. After the first successful deploy, open the Render shell or connect with a Postgres client and run [schema_postgres.sql](E:/heartsense/schema_postgres.sql) before using signup/login and predictions history features.
 
-7. Import the schema from [schema_mysql.sql](E:/heartsense/schema_mysql.sql) into the Railway MySQL database before using signup/login and predictions history features.
+8. Use the generated `onrender.com` URL or attach a custom domain in Render.
 
 ## Model Files
 The app expects these saved files inside [models](E:/heartsense/models):
@@ -227,6 +228,7 @@ The optional research script [train_dnn_talos.py](E:/heartsense/train_dnn_talos.
 - This project is for educational and demonstration use only, not medical advice.
 - Prediction inputs are validated before inference and saved per logged-in user.
 - If you switch Python environments, keep `scikit-learn==1.3.2` to stay compatible with the saved pipeline model.
+- On Render, keep the service on Python 3.11 because `tensorflow==2.15.0` is safest there.
 
 ## Future Enhancements
 Email Reports, PDF Report Generation

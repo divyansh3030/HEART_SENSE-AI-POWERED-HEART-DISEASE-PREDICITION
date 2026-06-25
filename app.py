@@ -1,6 +1,7 @@
 from datetime import datetime
 from functools import wraps
 import os
+from urllib.parse import urlparse
 
 from flask import (
     Flask,
@@ -18,13 +19,11 @@ import pandas as pd
 from werkzeug.security import check_password_hash, generate_password_hash
 
 try:
-    import mysql.connector
-    from mysql.connector import Error as MySQLError
+    import psycopg2
+    from psycopg2.extras import RealDictCursor
 except ImportError:  # pragma: no cover - depends on local environment
-    mysql = None
-    MySQLError = Exception
-else:
-    mysql = mysql.connector
+    psycopg2 = None
+    RealDictCursor = None
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.getenv("FLASK_SECRET_KEY", "heartsense-dev-key")
@@ -38,14 +37,7 @@ MODEL_DIR = os.path.join(BASE_DIR, "models")
 DNN_MODEL_PATH = os.path.join(MODEL_DIR, "heartsense_dnn.h5")
 SCALER_PATH = os.path.join(MODEL_DIR, "dnn_scaler.pkl")
 PIPELINE_PATH = os.path.join(MODEL_DIR, "heartsense_pipeline.pkl")
-
-MYSQL_CONFIG = {
-    "host": os.getenv("MYSQL_HOST", "127.0.0.1"),
-    "port": int(os.getenv("MYSQL_PORT", "3306")),
-    "user": os.getenv("MYSQL_USER", "root"),
-    "password": os.getenv("MYSQL_PASSWORD", ""),
-    "database": os.getenv("MYSQL_DATABASE", "heartsense"),
-}
+DATABASE_URL = os.getenv("DATABASE_URL", "").strip()
 
 # In this dataset, target=1 behaves like lower/no disease risk,
 # while target=0 behaves like disease presence.
@@ -210,23 +202,46 @@ def load_prediction_model():
 load_prediction_model()
 
 
+def build_postgres_config():
+    if DATABASE_URL:
+        parsed = urlparse(DATABASE_URL)
+        return {
+            "dbname": parsed.path.lstrip("/"),
+            "user": parsed.username,
+            "password": parsed.password,
+            "host": parsed.hostname,
+            "port": parsed.port or 5432,
+            "sslmode": os.getenv("PGSSLMODE", "prefer"),
+        }
+
+    return {
+        "dbname": os.getenv("PGDATABASE", "heartsense"),
+        "user": os.getenv("PGUSER", "postgres"),
+        "password": os.getenv("PGPASSWORD", ""),
+        "host": os.getenv("PGHOST", "127.0.0.1"),
+        "port": int(os.getenv("PGPORT", "5432")),
+        "sslmode": os.getenv("PGSSLMODE", "prefer"),
+    }
+
+
 def get_db_connection():
-    if mysql is None:
+    if psycopg2 is None:
         raise RuntimeError(
-            "MySQL driver not installed. Run: pip install mysql-connector-python"
+            "PostgreSQL driver not installed. Run: pip install psycopg2-binary"
         )
 
-    return mysql.connect(**MYSQL_CONFIG)
+    return psycopg2.connect(**build_postgres_config())
 
 
 def execute_query(query, params=None, fetchone=False, fetchall=False, commit=False):
     connection = get_db_connection()
-    cursor = connection.cursor(dictionary=True)
+    cursor = connection.cursor(cursor_factory=RealDictCursor)
     try:
         cursor.execute(query, params or ())
         if commit:
             connection.commit()
-            return cursor.lastrowid
+            inserted_row = cursor.fetchone()
+            return inserted_row["id"] if inserted_row else None
         if fetchone:
             return cursor.fetchone()
         if fetchall:
@@ -553,6 +568,7 @@ def create_prediction_for_user(user_id, patient_name, input_row, response):
         VALUES (
             %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
         )
+        RETURNING id
         """,
         (
             user_id,
@@ -701,7 +717,7 @@ def login():
             )
         except Exception as exc:
             print("Database connection failed:", exc)
-            flash("Database connection failed. Please check your MySQL setup.", "error")
+            flash("Database connection failed. Please check your PostgreSQL setup.", "error")
             user = None
 
         if not user or not check_password_hash(user["password_hash"], password):
